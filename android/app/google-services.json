@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "410371435827",
+    "project_id": "flutterxmoney",
+    "storage_bucket": "flutterxmoney.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410371435827:android:2a3dd36d31012f24a16246",
+        "android_client_info": {
+          "package_name": "com.example.firebase1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "410371435827-ps89g6d7lo8a7jter4f9db598sabfqlu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGZfMn3kLpFF5sQzt5a4k4O7RQSw77Zl0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "410371435827-ps89g6d7lo8a7jter4f9db598sabfqlu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
