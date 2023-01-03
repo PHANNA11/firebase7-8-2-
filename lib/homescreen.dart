@@ -96,6 +96,20 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await addUserData(
+              {'id': DateTime.now().microsecond, 'name': 'Sokny', 'age': 23});
+        },
+        child: const Text('Add+'),
+      ),
     );
+  }
+
+  Future<void> addUserData(Map<String, dynamic> userData) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .add(userData)
+        .then((value) => print('Add User Success'));
   }
 }
