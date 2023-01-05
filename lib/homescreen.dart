@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase1/login_screen.dart';
+import 'package:firebase1/update_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -88,7 +89,33 @@ class _HomeScreenState extends State<HomeScreen> {
                       )
                     : Card(
                         child: ListTile(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UpdateScreen(user: {
+                                    'id': data['id'],
+                                    'name': data['name'],
+                                    'age': data['age']
+                                  }),
+                                ));
+                          },
+                          onLongPress: () {
+                            updateUser(docsId[index], {
+                              'id': data['id'],
+                              'name': 'Dalin',
+                              'age': data['age']
+                            });
+                          },
                           title: Text(data['name'].toString()),
+                          trailing: IconButton(
+                              onPressed: () {
+                                deleteUser(docsId[index]);
+                              },
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              )),
                         ),
                       );
               }
@@ -104,6 +131,25 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Text('Add+'),
       ),
     );
+  }
+
+  Future<void> updateUser(String docId, Map<String, dynamic> userUpdate) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(docId)
+        .set(userUpdate);
+  }
+
+  Future<void> deleteUser(String docId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(docId)
+        .delete()
+        .then((value) {
+      setState(() {
+        print('Delete success');
+      });
+    });
   }
 
   Future<void> addUserData(Map<String, dynamic> userData) async {
