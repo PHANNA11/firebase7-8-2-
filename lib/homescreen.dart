@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase1/login_screen.dart';
+import 'package:firebase1/models/user_model.dart';
 import 'package:firebase1/update_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               else {
                 var data = snapshot.data;
+                UserModel userModel = UserModel(
+                    name: data!['name'], id: data['id'], age: data['age']);
+
                 return data == null
                     ? const Center(
                         child: Text('No data...'),
@@ -93,21 +97,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => UpdateScreen(user: {
-                                    'id': data['id'],
-                                    'name': data['name'],
-                                    'age': data['age']
-                                  }),
+                                  builder: (context) =>
+                                      UpdateScreen(userModel: userModel),
                                 ));
                           },
                           onLongPress: () {
-                            updateUser(docsId[index], {
-                              'id': data['id'],
-                              'name': 'Dalin',
-                              'age': data['age']
-                            });
+                            updateUser(
+                                docsId[index], UserModel(name: 'Kunthea'));
                           },
-                          title: Text(data['name'].toString()),
+                          title: Text(userModel.name.toString()),
                           trailing: IconButton(
                               onPressed: () {
                                 deleteUser(docsId[index]);
@@ -125,19 +123,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await addUserData(
-              {'id': DateTime.now().microsecond, 'name': 'Sokny', 'age': 23});
+          await addUserData(UserModel(
+              id: DateTime.now().microsecond, name: 'Sokny', age: 23));
         },
         child: const Text('Add+'),
       ),
     );
   }
 
-  Future<void> updateUser(String docId, Map<String, dynamic> userUpdate) async {
+  Future<void> updateUser(String docId, UserModel userUpdate) async {
     await FirebaseFirestore.instance
         .collection('users')
         .doc(docId)
-        .set(userUpdate);
+        .set(userUpdate.toJson());
   }
 
   Future<void> deleteUser(String docId) async {
@@ -152,10 +150,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> addUserData(Map<String, dynamic> userData) async {
+  Future<void> addUserData(UserModel userModel) async {
     await FirebaseFirestore.instance
         .collection('users')
-        .add(userData)
+        .add(userModel.toJson())
         .then((value) => print('Add User Success'));
   }
 }
