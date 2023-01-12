@@ -3,11 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase1/login_screen.dart';
 import 'package:firebase1/models/user_model.dart';
-import 'package:firebase1/update_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,26 +14,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> docsId = [];
-  void getDocumentID() async {
-    await FirebaseFirestore.instance.collection('users').get().then((value) {
-      value.docs.forEach((element) {
-        setState(() {
-          docsId.add(element.reference.id);
-          print(element.reference.id);
-        });
-      });
-    });
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getDocumentID();
-    //  print(docsId);
-  }
-
+  CollectionReference usersdata =
+      FirebaseFirestore.instance.collection('users');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,63 +41,41 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       appBar: AppBar(title: const Text('HomeScreen')),
-      body: ListView.builder(
-        itemCount: docsId.length,
-        itemBuilder: (context, index) {
-          CollectionReference usersdata =
-              FirebaseFirestore.instance.collection('users');
-          return FutureBuilder<DocumentSnapshot>(
-            future: usersdata.doc(docsId[index]).get(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                // ignore: prefer_const_constructors
-                return Center(
-                  child: const Icon(
-                    Icons.info,
-                    color: Colors.red,
-                  ),
-                );
-              } else if (snapshot.connectionState == ConnectionState.waiting)
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              else {
-                var data = snapshot.data;
-                UserModel userModel = UserModel(
-                    name: data!['name'], id: data['id'], age: data['age']);
-
-                return data == null
-                    ? const Center(
-                        child: Text('No data...'),
-                      )
-                    : Card(
-                        child: ListTile(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      UpdateScreen(userModel: userModel),
-                                ));
+      body: StreamBuilder<QuerySnapshot>(
+        stream: usersdata.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            // ignore: prefer_const_constructors
+            return Center(
+              child: const Icon(
+                Icons.info,
+                color: Colors.red,
+              ),
+            );
+          } else if (snapshot.connectionState == ConnectionState.waiting)
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          else {
+            return ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  var temp = snapshot.data!.docs[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text(temp['name']),
+                      trailing: IconButton(
+                          onPressed: () {
+                            deleteUser(temp.id);
                           },
-                          onLongPress: () {
-                            updateUser(
-                                docsId[index], UserModel(name: 'Kunthea'));
-                          },
-                          title: Text(userModel.name.toString()),
-                          trailing: IconButton(
-                              onPressed: () {
-                                deleteUser(docsId[index]);
-                              },
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                              )),
-                        ),
-                      );
-              }
-            },
-          );
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          )),
+                    ),
+                  );
+                });
+          }
         },
       ),
       floatingActionButton: FloatingActionButton(
