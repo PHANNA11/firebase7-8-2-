@@ -63,6 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   var temp = snapshot.data!.docs[index];
                   return Card(
                     child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(temp['profile']),
+                      ),
                       title: Text(temp['name']),
                       trailing: IconButton(
                           onPressed: () {
@@ -81,7 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await addUserData(UserModel(
-              id: DateTime.now().microsecond, name: 'Sokny', age: 23));
+              id: DateTime.now().microsecond,
+              name: 'Sokny',
+              age: 23,
+              profile:
+                  'https://imgs.search.brave.com/M6LO9DyazaKnTvmh9gfoVwy7bScd0C99UY9o5HFVq7I/rs:fit:1200:801:1/g:ce/aHR0cHM6Ly9zbS5t/YXNoYWJsZS5jb20v/dC9tYXNoYWJsZV9p/bi9uZXdzL2MvY29u/c3RhbnRseS9jb25z/dGFudGx5LXN0cmVz/c2VkLWF0LXdvcmst/aXQtbWlnaHQtYWN0/dWFsbHktYmUtY2hh/bmdpbmcteW9fY3F2/My4xMjAwLmpwZw'));
         },
         child: const Text('Add+'),
       ),
