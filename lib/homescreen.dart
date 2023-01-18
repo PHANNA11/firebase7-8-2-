@@ -1,5 +1,7 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 
+import 'dart:developer' as dev;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase1/login_screen.dart';
 import 'package:firebase1/models/user_model.dart';
@@ -16,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   CollectionReference usersdata =
       FirebaseFirestore.instance.collection('users');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,10 +64,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
                   var temp = snapshot.data!.docs[index];
+
                   return Card(
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(temp['profile']),
+                    child: ExpansionTile(
+                      leading: SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: Image(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(temp['profile']),
+                        ),
                       ),
                       title: Text(temp['name']),
                       trailing: IconButton(
@@ -75,6 +84,68 @@ class _HomeScreenState extends State<HomeScreen> {
                             Icons.delete,
                             color: Colors.red,
                           )),
+                      children: [
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('users/${temp.id}/address')
+                              .snapshots(),
+                          builder: (context, snap) {
+                            var address = snap.data!.docs.toList()[0].data()
+                                as Map<String, dynamic>;
+
+                            if (snap.hasError)
+                              return const Center(
+                                child: Icon(
+                                  Icons.info,
+                                  color: Colors.red,
+                                ),
+                              );
+                            else if (snap.connectionState ==
+                                ConnectionState.waiting)
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            else {
+                              if (snap.data != null) {
+                                dev.log(snap.data!.docs.first.id.toString());
+                                return Padding(
+                                  padding: const EdgeInsets.only(left: 30),
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        leading: const CircleAvatar(
+                                            child: Icon(Icons.location_city)),
+                                        title: Text('City'.toUpperCase()),
+                                        trailing:
+                                            Text(address['city'].toString()),
+                                      ),
+                                      ListTile(
+                                        leading: const CircleAvatar(
+                                            child: Icon(Icons.streetview)),
+                                        title: Text('Street'.toUpperCase()),
+                                        trailing:
+                                            Text(address['street'].toString()),
+                                      ),
+                                      ListTile(
+                                        leading: const CircleAvatar(
+                                            child: Icon(Icons.local_activity)),
+                                        title: Text('Zipcode'.toUpperCase()),
+                                        trailing:
+                                            Text(address['zipcode'].toString()),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                const Center(
+                                  child: SizedBox(),
+                                );
+                              }
+                            }
+                            return const CircularProgressIndicator();
+                          },
+                        )
+                      ],
                     ),
                   );
                 });
@@ -88,7 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
               name: 'Sokny',
               age: 23,
               profile:
-                  'https://imgs.search.brave.com/M6LO9DyazaKnTvmh9gfoVwy7bScd0C99UY9o5HFVq7I/rs:fit:1200:801:1/g:ce/aHR0cHM6Ly9zbS5t/YXNoYWJsZS5jb20v/dC9tYXNoYWJsZV9p/bi9uZXdzL2MvY29u/c3RhbnRseS9jb25z/dGFudGx5LXN0cmVz/c2VkLWF0LXdvcmst/aXQtbWlnaHQtYWN0/dWFsbHktYmUtY2hh/bmdpbmcteW9fY3F2/My4xMjAwLmpwZw'));
+                  'https://imgs.search.brave.com/M6LO9DyazaKnTvmh9gfoVwy7bScd0C99UY9o5HFVq7I/rs:fit:1200:801:1/g:ce/aHR0cHM6Ly9zbS5t/YXNoYWJsZS5jb20v/dC9tYXNoYWJsZV9p/bi9uZXdzL2MvY29u/c3RhbnRseS9jb25z/dGFudGx5LXN0cmVz/c2VkLWF0LXdvcmst/aXQtbWlnaHQtYWN0/dWFsbHktYmUtY2hh/bmdpbmcteW9fY3F2/My4xMjAwLmpwZw',
+              address: Address.fromJson(
+                  {'city': 'Phnom Penh', 'street': 'Lek5', 'zipcode': 32365})));
         },
         child: const Text('Add+'),
       ),
